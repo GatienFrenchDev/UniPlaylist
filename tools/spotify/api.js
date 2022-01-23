@@ -3,7 +3,10 @@ const req = require('request')
 const fs = require('fs')
 
 // fonction pour récupérer l'id d'une playlist spotify
-function getPlaylistId(url){
+function getPlaylistId(url_){
+
+    const url = url_.split('?')[0]
+
     if(url.startsWith("https://open.spotify.com/playlist")){
         return url.split('/')[4]
     }
@@ -43,8 +46,6 @@ function getPlaylist(id, token){
                 
             }
         });
-        
-        return playlist
     })
 }
 
