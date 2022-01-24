@@ -38,9 +38,26 @@ async function getPlaylist(id, token){
     })
 }
 
+async function getTitle(id, token){
+    const options = {
+        url:`https://api.spotify.com/v1/playlists/${id}`,
+        headers :{
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer '+token
+        },
+    }
+
+    return new Promise((resolve, reject) =>{
+        req.get(options, (err, res, body) =>{
+            resolve(JSON.parse(body)['name'])
+        })
+    })
+}
+
 
 
 module.exports = {
     getPlaylistId,
-    getPlaylist
+    getPlaylist,
+    getTitle
 }

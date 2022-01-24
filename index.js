@@ -1,5 +1,6 @@
 // importation des modules
 const express = require('express')
+const fs = require('fs')
 
 // variables .env
 require('dotenv').config()
@@ -9,6 +10,8 @@ const spotify_api = require('./tools/spotify/api')
 const SpotifygetToken = require('./tools/spotify/GetToken')
 const deezer_api = require('./tools/deezer/api')
 const DeezergetToken = require('./tools/deezer/GetToken')
+
+const tools = require('./tools/tools')
 
 // playlist spotify de test
 const url_spotify = 'https://open.spotify.com/playlist/1jnVddyvPMy0z6UAgMypSh?si=X82MG0JbSdSF3lpD9CcJDQ'
@@ -31,7 +34,7 @@ app.use('/', express.static(__dirname + '/public/'))
 
 const port = process.env.PORT || 80
 
-// app.listen(port, () =>{console.log(`🚀 | Serveur express démarré sur l'adresse http://127.0.0.1:${port}`)})
+app.listen(port, () =>{console.log(`🚀 | Serveur express démarré sur l'adresse http://127.0.0.1:${port}`)})
 
 app.get('/', (req, res) =>{
     res.render(`${__dirname}/public/index.ejs`, {})
@@ -47,7 +50,29 @@ app.post('/playlist', async (req, res) =>{
 
         const playlist = await spotify_api.getPlaylist(id, token)
 
-        res.send(JSON.stringify(playlist))
+        const titre = await spotify_api.getTitle(id, token)
+
+        const contenu = []
+
+        playlist['items'].forEach((item, index) =>{
+           contenu.push([item['track']['name'], item['track']['album']['artists'][0]['name']])
+        })
+
+        let id_pl = await deezer_api.CreatePlaylist(tools.clearString(titre))
+        id_pl = id_pl['id']
+
+        contenu.forEach(async (item, index) =>{
+            let id_ = await deezer_api.searchTrackId(tools.clearString(item[0]), tools.clearString(item[0]))
+            if(id == false){
+                console.log(`aucun résultat pour ${item[0]} de ${item[1]}`)
+            }
+            else{
+                await deezer_api.addTrack(id_pl, id_)
+            }
+        })
+
+        res.send(`https://deezer.com/fr/playlist/${id_pl}`)
+        
     }
 
     else if(url.startsWith('https://www.deezer.com/')){
@@ -62,8 +87,7 @@ app.post('/playlist', async (req, res) =>{
 })
 
 async function main(){
-    const song_id = await deezer_api.searchTrackId('Never Gonna Give You Up', 'Rick Astley')
-    await deezer_api.addTrack('9952191182', song_id)
+    // console.log(encodeURI('https://www.deezer.com?morceau=#1 Gatien'))
 }
 
 main()
