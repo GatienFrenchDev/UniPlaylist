@@ -6,11 +6,17 @@ require('dotenv').config()
 
 // importation des autres fichiers javascript
 const spotify_api = require('./tools/spotify/api')
-const getToken = require('./tools/spotify/GetToken')
+const SpotifygetToken = require('./tools/spotify/GetToken')
+const deezer_api = require('./tools/deezer/api')
+const DeezergetToken = require('./tools/deezer/GetToken')
 
 // playlist spotify de test
-const url = 'https://open.spotify.com/playlist/1jnVddyvPMy0z6UAgMypSh?si=X82MG0JbSdSF3lpD9CcJDQ'
-const id = '1jnVddyvPMy0z6UAgMypSh'
+const url_spotify = 'https://open.spotify.com/playlist/1jnVddyvPMy0z6UAgMypSh?si=X82MG0JbSdSF3lpD9CcJDQ'
+const id_spotify = '1jnVddyvPMy0z6UAgMypSh'
+
+// playlist deezer de test
+const url_deezer = 'https://www.deezer.com/fr/playlist/914651125'
+const id_deezer = '914651125'
 
 
 // mise en place du serveur express
@@ -36,10 +42,21 @@ app.post('/playlist', async (req, res) =>{
 
     if(url.startsWith('https://open.spotify.com/playlist/')){
 
-        const token = await getToken.generateNewToken()
+        const token = await SpotifygetToken.generateNewToken()
         const id  = spotify_api.getPlaylistId(url)
 
-        spotify_api.getPlaylist(id, token)
+        const playlist = await spotify_api.getPlaylist(id, token)
+
+        res.send(JSON.stringify(playlist))
+    }
+
+    else if(url.startsWith('https://www.deezer.com/')){
+        const id = url.split('playlist/')[1]
+
+        const playlist = await deezer_api.getPlaylist(id)
+
+        res.send(JSON.stringify(playlist))
+
     }
 
 })

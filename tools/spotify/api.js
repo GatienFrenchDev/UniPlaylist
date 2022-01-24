@@ -2,6 +2,7 @@ const req = require('request')
 
 const fs = require('fs')
 
+
 // fonction pour récupérer l'id d'une playlist spotify
 function getPlaylistId(url_){
 
@@ -20,32 +21,20 @@ function getPlaylistId(url_){
 }
 
 // fonction pour récupérer le contenu d'une playlist
-function getPlaylist(id, token){
+async function getPlaylist(id, token){
 
-    req.get({
+    const options = {
         url:`https://api.spotify.com/v1/playlists/${id}/tracks`,
         headers :{
             'Content-Type': 'application/json',
             'Authorization': 'Bearer '+token
         },
-        method: 'GET'
-    }, (e, r, body) =>{
+    }
 
-        const playlist = [3]
-
-        JSON.parse(body)['items'].forEach(element => {
-            if(element['track']){
-
-                console.log(element['track']['name'])
-                console.log(element['track']['artists'][0]['name'])
-
-                playlist.push({
-                    'titre':element['track']['name'],
-                    'artiste':element['track']['artists'][0]['name']
-                })
-                
-            }
-        });
+    return new Promise((resolve, reject) =>{
+        req.get(options, (err, res, body) =>{
+            resolve(JSON.parse(body))
+        })
     })
 }
 
