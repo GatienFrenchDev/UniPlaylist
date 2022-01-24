@@ -31,7 +31,7 @@ app.use('/', express.static(__dirname + '/public/'))
 
 const port = process.env.PORT || 80
 
-app.listen(port, () =>{console.log(`🚀 | Serveur express démarré sur l'adresse http://127.0.0.1:${port}`)})
+// app.listen(port, () =>{console.log(`🚀 | Serveur express démarré sur l'adresse http://127.0.0.1:${port}`)})
 
 app.get('/', (req, res) =>{
     res.render(`${__dirname}/public/index.ejs`, {})
@@ -60,3 +60,10 @@ app.post('/playlist', async (req, res) =>{
     }
 
 })
+
+async function main(){
+    const song_id = await deezer_api.searchTrackId('Never Gonna Give You Up', 'Rick Astley')
+    await deezer_api.addTrack('9952191182', song_id)
+}
+
+main()
